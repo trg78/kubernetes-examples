@@ -245,8 +245,10 @@ spec:
 
 ```
 
-5 This is the secret for Docker Registry
-Documentation - https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+5 This is the secret for Docker Registry.
+
+
+*Documentation - https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 
 ```
 apiVersion: v1
