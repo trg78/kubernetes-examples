@@ -261,3 +261,58 @@ stringData:
 type: kubernetes.io/dockerconfigjson
 ```
 
+6 How to gracefully shutdown process, when container recreating or in drain \ shutdown status
+
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dms
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dms
+  strategy:
+    type: Recreate
+    rollingUpdate: null
+  template:
+    metadata:
+      labels:
+        app: dms
+    spec:
+      imagePullSecrets:
+        - name: gitlabregistrykey
+      containers:
+        - name: dms
+          image: gitlab.com:5000/myrepo/dms:prod
+          ports:
+            - containerPort: 8083 # exposed in nginx on port 8083 in kubernetes network
+              protocol: TCP
+          lifecycle:
+            preStop:
+              exec:
+                # SIGTERM triggers a gracefully terminate process with ID 8 
+                command: ["sh", "-c", "kill 8",]
+          imagePullPolicy: Always
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dms-vending-device-service
+spec:
+  type: NodePort
+  ports:
+    - name: api8083
+      protocol: TCP
+      port: 8083 #Expose the service on the specified port internally within the cluster. That is, the service becomes visible on this port, and will send requests made to this port to the pods selected by the service.
+      targetPort: 8083 #This is the port on the pod that the request gets sent to. Your application needs to be listening for network requests on this port for the service to work.
+      nodePort: 31677 #Service visible outside the Kubernetes cluster by the node’s IP address and the port number declared in this property.
+  selector:
+    app: dms-vending-device-service
+```
+
