@@ -268,26 +268,26 @@ type: kubernetes.io/dockerconfigjson
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dms
+  name: obs
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dms
+      app: obs
   strategy:
     type: Recreate
     rollingUpdate: null
   template:
     metadata:
       labels:
-        app: dms
+        app: obs
     spec:
       imagePullSecrets:
         - name: gitlabregistrykey
       containers:
-        - name: dms
-          image: gitlab.com:5000/myrepo/dms:prod
+        - name: obs
+          image: gitlab.com:5000/myrepo/obs:prod
           ports:
             - containerPort: 8083 # exposed in nginx on port 8083 in kubernetes network
               protocol: TCP
@@ -303,7 +303,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: dms-vending-device-service
+  name: obs-bind-device-service
 spec:
   type: NodePort
   ports:
@@ -313,6 +313,6 @@ spec:
       targetPort: 8083 #This is the port on the pod that the request gets sent to. Your application needs to be listening for network requests on this port for the service to work.
       nodePort: 31677 #Service visible outside the Kubernetes cluster by the node’s IP address and the port number declared in this property.
   selector:
-    app: dms-vending-device-service
+    app: obs-bind-device-service
 ```
 
